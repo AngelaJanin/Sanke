@@ -5,11 +5,17 @@ window.addEventListener("load", function(evt) {
   let context_h = canvas.height;
   let manzana_x;
   let manzana_y;
-  let velocidad_x = 10;
+  let velocidad_x = 12;
   let velocidad_y = 0;
   let snake = [{x: 84, y: 84}];
   let score = 0;
   let direccion = false;
+  let lastTime= Date.now();
+  let current = 0;
+  let elapsed= 0;
+  let time= 0;
+  let init= true;
+  let gameover = false;
 
   main();
   creaManzana();
@@ -18,9 +24,13 @@ window.addEventListener("load", function(evt) {
 
   function main(){
     if(final()){
+      reiniciar();
       return;
     }
     setTimeout(function onTick(){
+      current = Date.now();
+      elapsed = (current-lastTime)/1000;
+      time += elapsed;
       direccion = false;
       render();
       pintaManzana();
@@ -60,15 +70,15 @@ window.addEventListener("load", function(evt) {
     }
 
     function pintaPartesSnake(parte){
-      context.fillStyle = 'lightgreen';
-      context.strokeStyle = 'black';
+      context.fillStyle = '#00CED1';
+      context.strokeStyle = ' 	#008B8B';
       context.fillRect(parte.x, parte.y, 12, 12);
       context.strokeRect(parte.x, parte.y, 12, 12);
     }
 
     function pintaManzana(){
-      context.fillStyle = 'red';
-      context.strokeStyle = "white";
+      context.fillStyle = '#DC143C';
+      context.strokeStyle = '#8B0000';
       context.fillRect(manzana_x, manzana_y, 12, 12);
       context.strokeRect(manzana_x, manzana_y, 12, 12);
     }
@@ -78,8 +88,12 @@ window.addEventListener("load", function(evt) {
 *  se modifica las variables de velocidad según la coordenada
 */
     function moverSnake(){
-      const cabeza = {x: snake[0].x + velocidad_x, y: snake[0].y + velocidad_y};
-      snake.unshift(cabeza);
+        const cabeza = {x: snake[0].x + velocidad_x, y: snake[0].y + velocidad_y};
+        snake.unshift(cabeza);
+        time=0;
+      //}
+
+
       const feed = snake[0].x === manzana_x && snake[0].y === manzana_y;
       if(feed){
         score = score + 10;
@@ -97,6 +111,7 @@ window.addEventListener("load", function(evt) {
     function final(){
       for(let i = 4; i < snake.length; i++){
         if(snake[i].x === snake[0].x && snake[i].y === snake[0].y){
+          gameover = true;
           return true;
         }
       }
@@ -104,9 +119,15 @@ window.addEventListener("load", function(evt) {
         const colisionDer = snake[0].x > context_w -12;
         const colisionArr = snake[0].y < 0;
         const colisionAba = snake[0].y > context_h -12;
-        console.log(snake);
+        gameover = true;
         return colisionIzq || colisionDer || colisionArr || colisionAba
+    }
 
+    function reiniciar(){
+      if(gameover = true){
+        alert("Perdiste :(");
+        location.reload();
+      }
     }
 
     function random(min, max){
@@ -149,11 +170,7 @@ window.addEventListener("load", function(evt) {
         velocidad_x = -12;
         velocidad_y = 0;
       }
-      if(keyPressed === Arriba && !irAba){
-        velocidad_x = 0;
-        velocidad_y -12;
-      }
-      
+
       if(keyPressed === Arriba && !irAba){
         velocidad_x = 0;
         velocidad_y = -12;
@@ -163,6 +180,7 @@ window.addEventListener("load", function(evt) {
         velocidad_x = 12;
         velocidad_y = 0;
       }
+
       if(keyPressed === Abajo && !irArr){
         velocidad_x = 0;
         velocidad_y= 12;
